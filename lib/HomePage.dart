@@ -5,10 +5,12 @@ import 'package:goole_notes/CreateNoteView.dart';
 import 'package:goole_notes/SearchPage.dart';
 import 'package:goole_notes/colors.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:goole_notes/sqfliteDatabase/db.dart';
+// import 'package:goole_notes/sqfliteDatabase/db.dart';
 // import 'package:goole_notes/test_code_folder/db_test.dart';
 // import 'package:goole_notes/test_code_folder/test.dart';
 import 'package:goole_notes/MyNotesModel.dart';
+import 'package:goole_notes/services/db.dart';
+import 'package:goole_notes/services/login_info.dart';
 
 import 'NoteView.dart';
 import 'SideMenuBar.dart';
@@ -26,6 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   bool isLoading = true;
   late List<Note> notesList;
+  late String? ImgUrl;
   GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   String note =
       "THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE THIS IS NOTE";
@@ -40,9 +43,9 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     // createEntry();
-    // getAllNotes();
+    getAllNotes();
     // getOneNote();
-    createEntry(Note(pin: false, title: "Code with dhruv", content: "This is dhruv telling ", createdTime: DateTime.now()));
+    // createEntry(Note(pin: false, title: "Code with dhruv", content: "This is dhruv telling ", createdTime: DateTime.now(), isArchieve: false));
   }
 
   // This line defines a function named createEntry.
@@ -58,10 +61,19 @@ class _HomePageState extends State<HomePage> {
   Future<String?> getAllNotes() async{
     // await NotesDatabase.instance.readAllNotes();
     // this.notesList =  await NotesDatabase.instance.readAllNotes();
-    this.notesList = await NotesDatabase.instance.readAllNotes();
-    setState(() {
-      isLoading = false;
+    LocalDataSaver.getImg().then((value){
+      if(this.mounted){
+        setState(() {
+          ImgUrl = value;
+        });
+      }
     });
+    this.notesList = await NotesDatabase.instance.readAllNotes();
+    if(this.mounted){
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<String?> getOneNote(int id) async {
@@ -92,130 +104,156 @@ class _HomePageState extends State<HomePage> {
       drawer: SideMenuBar(),
       endDrawerEnableOpenDragGesture: true,
       backgroundColor: bgColor,
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: RefreshIndicator(
+        onRefresh: (){
+          return Future.delayed(Duration(seconds: 1),()
+          {
+            /// adding elements in list after [1 seconds] delay
+            /// to mimic network call
+            ///
+            /// Remember: [setState] is necessary so that
+            /// build method will run again otherwise
+            /// list will not show all elements
+            setState(() {
 
-              /// ----------
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => ArchiveView(),
-              //       ),
-              //     );
-              //   },
-              //   child: SizedBox(
-              //     height: 140,
-              //     child: Hero(
-              //       tag: 'heroTag',
-              //       child: ClipRRect(
-              //         borderRadius: BorderRadius.circular(1002),
-              //         child: Image.network(
-              //           'https://images.pexels.com/photos/15239/flower-roses-red-roses-bloom.jpg?auto=compress&cs=tinysrgb&w=300',
-              //           fit: BoxFit.cover,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+            });
+          });
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-              Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10 ),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: black.withOpacity(0.2),
-                      spreadRadius:  1,
-                      blurRadius: 3,
-                    )
-                  ]
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            _drawerKey.currentState!.openDrawer();
-                          },
-                            icon:Icon(Icons.menu,
-                              color: white,
-                            ),
-                        ),
-                        Container(
-                          height: 55,
-                          // width: 200,
-                          // color: Colors.white,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                style: ButtonStyle(
-                                  overlayColor: MaterialStateColor.resolveWith((states) =>
-                                      white.withOpacity(0.1)),
-                                ),
-                                onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage()));
-                                },
-                                child: Text(
-                                  "Search Notes",
-                                  style: TextStyle(
-                                    color: white.withOpacity(0.5),
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                /// ----------
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => ArchiveView(),
+                //       ),
+                //     );
+                //   },
+                //   child: SizedBox(
+                //     height: 140,
+                //     child: Hero(
+                //       tag: 'heroTag',
+                //       child: ClipRRect(
+                //         borderRadius: BorderRadius.circular(1002),
+                //         child: Image.network(
+                //           'https://images.pexels.com/photos/15239/flower-roses-red-roses-bloom.jpg?auto=compress&cs=tinysrgb&w=300',
+                //           fit: BoxFit.cover,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
 
-                    Container(
-                     margin: EdgeInsets.symmetric(horizontal: 10),
-                      //color: Colors.green,
-                      child: Row(
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 55,
+                  margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10 ),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: black.withOpacity(0.2),
+                        spreadRadius:  1,
+                        blurRadius: 3,
+                      )
+                    ]
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
                         children: [
-                          TextButton(
-                            style: ButtonStyle(
-                                overlayColor:
-                                MaterialStateColor.resolveWith(
-                                        (states) =>
-                                        white.withOpacity(0.1)),
-                                shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(50.0),
-                                    ))),
-                            onPressed: (){},
-                            child: Icon(Icons.grid_view_outlined,color: white.withOpacity(0.5),),
+                          IconButton(
+                            onPressed: () {
+                              _drawerKey.currentState!.openDrawer();
+                            },
+                              icon:Icon(Icons.menu,
+                                color: white,
+                              ),
                           ),
-                          CircleAvatar(
-                            backgroundColor: white.withOpacity(0.4),
-                            radius: 16,
-                          )
+                          SizedBox(
+                            width: 16,
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage()));
+                            },
+                            child: Container(
+                              height: 55,
+                              width: MediaQuery.of(context).size.width -  220,
+                              // width: 200,
+                              // color: Colors.white,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    style: ButtonStyle(
+                                      overlayColor: MaterialStateColor.resolveWith((states) =>
+                                          white.withOpacity(0.1)),
+                                    ),
+                                    onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPage()));
+                                    },
+                                    child: Text(
+                                      "Search Notes",
+                                      style: TextStyle(
+                                        color: white.withOpacity(0.5),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+
+                      Container(
+                       margin: EdgeInsets.symmetric(horizontal: 10),
+                        //color: Colors.green,
+                        child: Row(
+                          children: [
+                            TextButton(
+                              style: ButtonStyle(
+                                  overlayColor:
+                                  MaterialStateColor.resolveWith(
+                                          (states) =>
+                                          white.withOpacity(0.1)),
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(50.0),
+                                      ))),
+                              onPressed: (){},
+                              child: Icon(Icons.grid_view_outlined,color: white.withOpacity(0.5),),
+                            ),
+                            CircleAvatar(
+                              backgroundColor: white.withOpacity(0.4),
+                              radius: 16,
+                            )
+                          ],
+                        ),
+                      ),
 
 
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              NoteSectionAll(),
-              NotesListSection()
-            ],
+                NoteSectionAll(),
+                NotesListSection()
+              ],
+            ),
           ),
         ),
       ),

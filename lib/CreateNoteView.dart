@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:goole_notes/HomePage.dart';
+import 'package:goole_notes/MyNotesModel.dart';
 import 'package:goole_notes/colors.dart';
+import 'package:goole_notes/services/db.dart';
 
 class CreateNoteView extends StatefulWidget {
   const CreateNoteView({super.key});
@@ -9,6 +12,14 @@ class CreateNoteView extends StatefulWidget {
 }
 
 class _CreateNoteViewState extends State<CreateNoteView> {
+  TextEditingController title = new TextEditingController();
+  TextEditingController content = new TextEditingController();
+  @override
+  void dispose(){
+    super.dispose();
+    title.dispose();
+    content.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +28,11 @@ class _CreateNoteViewState extends State<CreateNoteView> {
         backgroundColor: bgColor,
         elevation: 0.0,
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.save_outlined))
+          IconButton(onPressed: () async{
+            await NotesDatabase.instance.insertEntry(Note(pin: false, isArchieve: false, title: title.text, content: content.text, createdTime: DateTime.now()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
+          }, 
+              icon: Icon(Icons.save_outlined))
         ],
       ),
 

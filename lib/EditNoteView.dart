@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:goole_notes/HomePage.dart';
 import 'package:goole_notes/colors.dart';
-import 'package:goole_notes/sqfliteDatabase/db.dart';
+import 'package:goole_notes/services/db.dart';
+// import 'package:goole_notes/sqfliteDatabase/db.dart';
 
 import 'MyNotesModel.dart';
 import 'NoteView.dart';
@@ -8,7 +10,7 @@ import 'NoteView.dart';
 class EditNoteView extends StatefulWidget {
    EditNoteView({super.key, required this.note});
   
-  Note note;
+  Note? note;
 
   @override
   State<EditNoteView> createState() => _EditNoteViewState();
@@ -38,19 +40,21 @@ class _EditNoteViewState extends State<EditNoteView> {
         ),
         actions: [
           IconButton(
+            splashRadius: 17,
             onPressed: () async {
               Note newNote = Note(id: widget.note!.id,
                   pin: false,
                   title: NewTitle,
                   content: NewNoteDet,
-                  createdTime: widget.note!.createdTime,
+                  createdTime: widget.note!.createdTime, isArchieve: widget.note!.isArchieve,
               );
               await NotesDatabase.instance.updateNote(newNote);
               Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (context)=>NoteView(note: newNote)));
+                  builder: (context)=>HomePage()));
+                      // NoteView(note: newNote)));
             },
             icon: Icon(Icons.save_outlined),
-            splashRadius: 17,
+            
           ),
         ],
       ),

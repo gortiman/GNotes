@@ -19,7 +19,8 @@ class _SideMenuBarState extends State<SideMenuBar> {
         borderRadius: BorderRadius.zero, // Set border radius to zero
       ),
       child:Container(
-        color: bgColor,
+        // color: bgColor,
+        decoration: BoxDecoration(color: bgColor),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
